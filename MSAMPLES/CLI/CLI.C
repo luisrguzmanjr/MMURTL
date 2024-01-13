@@ -325,6 +325,7 @@ if ((apParam[1]) && (acbParam[1]))
 {
 	if (iLine >= 23) 
 	{
+		InitScreen(FALSE);
 		ScrollVid(0,1,80,23,1);
 		SetXY(0,23);
 	}
@@ -367,6 +368,7 @@ if ((pName) && (cbName))
 
 	if (iLine >= 23)
 	{
+		InitScreen(FALSE);
 		ScrollVid(0,1,80,23,1);
 		SetXY(0,23);
 	}
@@ -532,8 +534,9 @@ char st[78];
 
 if (iLine >= 23)
 {
-	ScrollVid(0,1,80,23,1);
-	SetXY(0,23);
+		InitScreen(FALSE);
+		ScrollVid(0,1,80,23,1);
+        SetXY(0,23);
 }
 fDone = 0;
 SectNum = 0;
@@ -825,7 +828,10 @@ unsigned long erc, i, j, fh;
 		FillData(aCmd, 79, ' ');
 		aCmd[79] = 0;
 		cbCmd = 0;
-		SetXY(0, iLine);
+		if (iLine >= 23)
+			SetXY(0, iLine - 1);
+		else
+			SetXY(0, iLine);
 		TTYOut (">", 1, NORMVID);
 		EditLine(aCmd, cbCmd, 79, &cbCmd, &ExitChar, EDVID);
 		TTYOut ("\r\n", 2, NORMVID);
@@ -939,6 +945,7 @@ unsigned long erc, i, j, fh;
 		GetXY(&iCol, &iLine);
 		if (iLine >= 23)
 		{
+			InitScreen(FALSE);
 			ScrollVid(0,1,80,23,1);
 			SetXY(0,23);
 		}
