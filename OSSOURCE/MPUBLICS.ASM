@@ -122,6 +122,5 @@ PUBLIC _KillJob			DF 00000000h:390h
 PUBLIC _GetSystemDisk		DF 00000000h:398h
 PUBLIC _UnRegisterSvc		DF 00000000h:3A0h
 PUBLIC _undelete		DF 00000000h:3A8h
-PUBLIC _format_disk		DF 00000000h:3B0h
 
 ;============== End of Module =======================

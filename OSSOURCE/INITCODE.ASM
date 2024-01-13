@@ -1095,13 +1095,7 @@ PUBLIC InitOSPublics:
 		MOV DX, OSCodeSel
 		MOV ESI, OFFSET __undelete
 		CALL FWORD PTR _AddCallGate
-
-		MOV EAX, 0EC01h		;format_disk --  1 DWord params DPL 3
-		MOV ECX, 3B0h
-		MOV DX, OSCodeSel
-		MOV ESI, OFFSET __format_disk
-		CALL FWORD PTR _AddCallGate
-
+		
 		RETN
 
 ;================== END of Module =================

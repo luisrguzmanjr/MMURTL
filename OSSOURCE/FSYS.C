@@ -150,7 +150,7 @@ extern far U32 GetTimerTick(U32 *pTickRet);
 extern far long TTYOut (char *pTextOut, long ddTextOut, long ddAttrib);
 extern far long GetNormVid(long *pNormVidRet);
 
-#include "c:\ossource\MKbd.h"
+#include "MKbd.h"
 #include "MVid.h"
 /* From MDevDrv */
 extern far U32  DeviceOp(U32  dDevice,
@@ -177,7 +177,7 @@ extern far U32 GetPath(U32 JobNum, char *pPathRet, U32 *pdcbPathRet);
 extern far U32 RegisterSvc(S8 *pName, U32 Exch);
 
 /* NEAR support for debugging */
-
+extern long CheckScreen(void);
 extern U32 xprintf(char *fmt, ...);
 extern U32 Dump(U8 *pb, U32 cb);
 extern far long SetVidOwner(long iJob);
@@ -1995,6 +1995,7 @@ U8  fFound, *pEnt, Drive;
 	if (erc)
 	{   
 	    xprintf("DeviceOp() failed, erc = %d\r\n",erc);
+		CheckScreen();
 		return(erc);
 	}
     pEnt = abRawSector;		/* Point to first entry */
@@ -3362,7 +3363,8 @@ U32 dHandle, erc, erc1, iFCB;
 static U32	CreateDirM(char *pPath, U32 cbPath, U32 iJob)
 {
 U32 erc;
-
+  xprintf("in createdir, call create file\r\n");
+  CheckScreen();
   erc = CreateFileM(pPath, cbPath, DIRECTORY, iJob);
   return(erc);
 
@@ -3379,7 +3381,8 @@ char filename[12];
 U32 cbPath0;
 U16 DirClstr; 
 U8 fFound, Drive, *pEnt;
-
+xprintf("in deletedir, call create file\r\n");
+CheckScreen();
 /*
         SetVidOwner(iJob); 
         xprintf("*fallfiles in deletedirm() = %d, %c\r\n",*fAllFiles,*fAllFiles);
@@ -3670,6 +3673,8 @@ while (1)
 			                   pRQB->dData1);    /*  dSize */
 			break;
 		case 11 :		/* CreateFile */
+			xprintf("in fsystask, call create file\r\n");
+			CheckScreen();			
 			erc = CreateFileM(pRQB->pData1,      /* pFilename  */
 			                  pRQB->cbData1,     /* cbFilename */
 			                  pRQB->dData0,      /* Attributes */
@@ -3686,11 +3691,15 @@ while (1)
 			erc = DeleteFileM(pRQB->dData0);     /* Handle  */
 			break;
 		case 14 :		/* CreateDirectory */
+			xprintf("in fsystask, call create dir\r\n");
+			CheckScreen();			
 			erc = CreateDirM(pRQB->pData1,      /* pPath */
 			                 pRQB->cbData1,     /* cbPath */
 			                 pRQB->RqOwnerJob); /* JobNum */
 			break;
 		case 15 :		/* DeleteDirectory */
+			xprintf("in fsystask, call delete dir\r\n");
+			CheckScreen();		
 			erc = DeleteDirM(pRQB->pData1,      /* pPath */
 			                 pRQB->cbData1,     /* cbPath */
 			                 pRQB->pData2,     /* pntr to fAllFiles */
@@ -3707,7 +3716,8 @@ while (1)
 			                    pRQB->RqOwnerJob); /* JobNum   */
              if (erc)
                 xprintf("erc on return from getdirsectoM() = %d\r\n",erc);
-             break;
+			 CheckScreen();
+			 break;
 
 		case 17 :     	/* undelete */
 		    erc = undeletem(pRQB->pData1, 			/* pPath */
@@ -4063,11 +4073,15 @@ U32 far _CreateDir(char *pPath,
 {
 U32 erc, exch, rqhndl, msg[2];
 	GetTSSExch(&exch);
+	xprintf("make request to create dir\r\n");
+	CheckScreen();
     erc = Request(fsysname, 14, exch, &rqhndl,
                    1,  							/* 1 Send ptrs */
                    pPath, cbPath,
                    0, 0,
                    0, 0, 0);
+	xprintf("request made, check error\r\n");
+	CheckScreen();				   
 	if (!erc) erc = WaitMsg(exch, msg);
 	if (erc) return(erc);
 	return(msg[1]);
@@ -4095,10 +4109,14 @@ char key;
       }
 /* go for the delete */
 	GetTSSExch(&exch);
+	xprintf("make request to delete dir\r\n");
+	CheckScreen();	
     erc = Request(fsysname, 15, exch, &rqhndl,
                    1,  							/* 1 = Send ptrs */
                    pPath, cbPath,
                    fAllFiles, 1, 0, 0, 0);
+        xprintf("request made, check error\r\n");
+        CheckScreen();	
 	if (!erc) erc = WaitMsg(exch, msg);
 	if (erc) return(erc);
 	return(msg[1]);
@@ -4138,7 +4156,8 @@ U32 erc, exch, rqhndl, msg[2];
 	if (erc) 
 	{
 	  xprintf("Request failed in getdirsector() in fsys.c\r\n");
-      return(erc);
+      CheckScreen();
+	  return(erc);
 	}
 /*	  xprintf("returned msg[1] in getdirsector() is %d\r\n",msg[1]); */
 	return(msg[1]);
@@ -4222,6 +4241,7 @@ U8 *pMem;
   			Ldrv[i].SecPerClstr,
   			Ldrv[i].DevNum,
   			j);
+    	CheckScreen();
   	}
 
   if (!erc)
