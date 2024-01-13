@@ -152,7 +152,7 @@ extern long DeAllocJCB(long *pdJobNumRet, char *ppJCBRet);
  xprintf, xsprintf.
 ***************************************************************/
 
-#include "stdarg.h"
+#include <stdarg.h>
 
 #define	S_SIZE	100
 
